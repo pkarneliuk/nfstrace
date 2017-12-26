@@ -2,17 +2,20 @@ sudo: false
 dist: trusty
 language: cpp
 
-addons:
-  apt:
-    sources: ['ubuntu-toolchain-r-test','llvm-toolchain-trusty-5.0']
-    packages: ['gcc-7','g++-7','clang-5.0','llvm-5.0-dev','libpcap-dev','libjson-c-dev','valgrind','ccache','texlive-latex-base']
- 
+os:
+  - linux
+
 cache:
   apt: true
   directories:
     - ccache
     - $HOME/.ccache
     - $DEPS_DIR
+
+addons:
+  apt:
+    sources: ['ubuntu-toolchain-r-test','llvm-toolchain-trusty-5.0']
+    packages: ['gcc-7','g++-7','clang-5.0','llvm-5.0-dev','libpcap-dev','libjson-c-dev','valgrind','ccache','texlive-latex-base']
 
 env:
   global:
@@ -22,18 +25,15 @@ env:
     - GTEST_DIR="$TRAVIS_BUILD_DIR/third_party/googletest"
 
 matrix:
+  fast_finish: true
   include:
-    - os: linux
-      compiler: gcc
+    - compiler: gcc
       env:
         # You can not set CXX directly as Travis CI will overwrite it. You need an intermediate variable like COMPILER
         - COMPILER=g++-7 CXX_FLAGS="-g -O0 -fprofile-arcs -ftest-coverage -fPIC" C_FLAGS="-g -O0 -fprofile-arcs -ftest-coverage" gcov="/usr/bin/gcov-7"
-      fast_finish: true
-    - os: linux
-      compiler: clang
+    - compiler: clang
       env:
         - COMPILER=/usr/bin/clang++-5.0
-      fast_finish: true
 
 before_install:
   - git submodule update --init --recursive
