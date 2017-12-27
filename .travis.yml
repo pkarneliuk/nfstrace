@@ -8,22 +8,23 @@ cache:
 addons:
   apt:
     sources: ['ubuntu-toolchain-r-test','llvm-toolchain-trusty-5.0']
-    packages: ['ninja-build','g++-7','clang-5.0','libpcap-dev','libjson-c-dev','valgrind','lcov','gcovr','texlive-latex-base']
+    packages: ['g++-7','clang-5.0','libpcap-dev','libjson-c-dev','valgrind','lcov','gcovr','texlive-latex-base']
 
 env:
   global:
     - GTEST_DIR="$TRAVIS_BUILD_DIR/third_party/googletest"
 
 matrix:
-  fast_finish: true
   include:
     - os: linux
       compiler: gcc
+      fast_finish: true
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
         - CXXFLAGS="-g -O0 -fprofile-arcs -ftest-coverage -fPIC" CFLAGS="-g -O0 -fprofile-arcs -ftest-coverage" gcov="/usr/bin/gcov-7"     
     - os: linux
       compiler: clang
+      fast_finish: true
       env:
         - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
 
@@ -39,8 +40,8 @@ before_script:
   - lcov --gcov-tool "/usr/bin/gcov-7" --directory . --zerocounters
 script:
   - |
-    ctest --build-and-test . ./build --build-config debug --build-generator 'Ninja' --parallel 4 --build-target all \
-          --build-options -DGTEST_SOURCE_DIR=$GTEST_DIR -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DINCLUDE_COVERAGE_INFO="true" \
+    ctest --build-and-test . ./build --build-config debug --build-generator 'Unix Makefiles' --parallel 4 --build-target all \
+          --build-options -DGTEST_SOURCE_DIR=$GTEST_DIR -DCMAKE_VERBOSE_MAKEFILE:BOOL=OFF -DINCLUDE_COVERAGE_INFO="true" \
           --test-command ctest
   - cmake --build ./build --target documentation-pdflatex
 
